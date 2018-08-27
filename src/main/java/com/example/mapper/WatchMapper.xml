@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.WatchMapper">
+	
+	<resultMap id="WatchResultMap" type="com.example.model.Watch">
+		
+		<id column="watchid" property="watchid" />
+		<result column="type" property="type" />
+		<result column="watchname" property="watchname" />
+		<!-- result column="brand_id" property="dob" /> -->
+		<result column="price" property="price" />
+		<result column="amount" property="amount" />
+		<result column="descr" property="descr" />
+		<result column="pics" property="pics" />
+		<result column="xl" property="xl" />
+		
+		<association property="brands" column="brand_id" 
+		javaType="com.example.model.Brands" foreignColumn="brandid">
+		
+		<id column="brandid" property="brandid" />
+		<result column="brandname" property="brandname" />
+		<result column="brandcount" property="brandcount" />
+		<result column="branddscr" property="branddscr" />
+		<result column="brandpics" property="brandpics" />
+		</association>
+		
+		
+	</resultMap>
+	
+	
+	
+	<select id="findCWatch" resultType="java.lang.Integer">
+		select count(watchid)  from watch
+	</select>
+	
+	 <select id="findAllWatch" resultMap="WatchResultMap">
+		select b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl,
+		a.brandid,a.brandname,a.brandcount,a.branddscr,a.brandpics 
+		 	from watch b left outer join brand a on b.brand_id= a.brandid
+	</select> 
+	
+	
+	<select id="findTypeWatch" resultMap="WatchResultMap" parameterType="com.example.model.Watch" >
+		select b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl,
+		a.brandid,a.brandname,a.brandcount,a.branddscr,a.brandpics 
+		 	from watch b left outer join brand a on b.brand_id= a.brandid where type=#{arg0} or brand_id=#{arg1}
+	</select> 
+	
+		<select id="findRandWatch" resultMap="WatchResultMap" >
+		select b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl,
+		a.brandid,a.brandname,a.brandcount,a.branddscr,a.brandpics 
+		 	from watch b left outer join brand a on b.brand_id= a.brandid order by rand() limit 3
+	</select> 
+	
+	 <select id="findIdWatch" resultMap="WatchResultMap" parameterType="java.lang.Integer">
+		select b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl,
+		a.brandid,a.brandname,a.brandcount,a.branddscr,a.brandpics 
+		 	from watch b left outer join brand a on b.brand_id= a.brandid where watchid=#{watchid}
+	</select> 
+	
+	
+	  <select id="findXlWatch" resultMap="WatchResultMap">
+		select b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl,
+		a.brandid,a.brandname,a.brandcount,a.branddscr,a.brandpics 
+		 	from watch b left outer join brand a on b.brand_id= a.brandid  ORDER BY xl desc limit 6
+	</select> 
+	
+		<select id="findRelatedWatch" resultMap="WatchResultMap" parameterType="java.lang.Integer">
+		
+			select b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl,
+			a.brandid,a.brandname,a.brandcount,a.branddscr,a.brandpics 
+		 	from watch b left outer join brand a on b.brand_id= a.brandid
+		 	where (brand_id=(SELECT brand_id from watch where watchid=#{watchid}) 
+		 	or type=(SELECT type from watch where watchid=#{watchid}) ) 
+		 	and watchid!=#{watchid} ORDER BY xl desc limit 4
+		 	
+	</select> 
+	
+	 <select id="findSearchWatch" resultMap="WatchResultMap" parameterType="java.lang.String">
+		select b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl,
+		a.brandid,a.brandname,a.brandcount,a.branddscr,a.brandpics 
+		 	from watch b left outer join brand a on b.brand_id= a.brandid where watchname like "%"#{watchname}"%"
+	</select> 
+	
+ <!-- <select id="findAllWatch1" resultMap="WatchResultMap1">
+		select count(*) as a,brandname,brandid from watch,brand where watch.brand_id=brand.brandid group by brandname,brandid
+		 	
+	</select>  -->
+	
+	
+	<update id="updateWatch" parameterType="com.example.model.Watch">
+		update watch set type=#{type},watchname=#{watchname}, 
+		brand_id=(select brandid from brand where brandname=#{brandname}),
+		price=#{price},	amount=#{amount},descr=#{descr} where watchid=#{watchid}
+	</update>
+	
+	
+	<!-- <update id="updateWatch1" parameterType="java.lang.Integer">
+		update watch set brand_id=(select brandid from brand where brandname=#{brandname}) where watchid=#{watchid}
+	</update> -->
+	
+	<insert id="insertWatch" parameterType="com.example.model.Watch" keyProperty="watchid" useGeneratedKeys="true"> 
+	insert into watch(watchid, type , watchname , brand_id ,price,amount,descr,pics,xl) 
+	values(#{watchid},#{type},#{watchname},(select brandid from brand where brandname=#{brandname}) ,#{price},#{amount},#{descr},#{pics},#{xl}) 
+	</insert>
+	
+	<delete id="deleteWatch"  parameterType="int" >
+	delete from watch where watchid=#{watchid}
+	</delete>
+	
+	<update id="updateWcount" parameterType="java.lang.Integer">
+		update watch set amount=amount-#{arg0},xl=xl+#{arg1} where watchid=#{arg2}
+	</update>
+	
+</mapper>
