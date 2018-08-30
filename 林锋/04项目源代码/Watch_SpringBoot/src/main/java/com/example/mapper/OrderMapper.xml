@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.OrderMapper">
+	
+	<resultMap id="OrderResultMap" type="com.example.model.Order">
+		
+		<id column="orderid" property="orderid" />
+		<result column="watch_id" property="watch_id" />
+		<result column="w_count" property="w_count" />
+		<result column="user_id" property="user_id" />
+		<result column="w_ordertime" property="w_ordertime" />
+		<result column="state" property="state" />
+		
+		<association property="watch" column="watch_id" 
+		javaType="com.example.model.Watch" foreignColumn="watchid">
+		
+		<id column="watchid" property="watchid" />
+		<result column="type" property="type" />
+		<result column="watchname" property="watchname" />
+		<result column="price" property="price" />
+		<result column="amount" property="amount" />
+		<result column="descr" property="descr" />
+		<result column="pics" property="pics" />
+		<result column="xl" property="xl" />
+		
+		</association>
+		
+		
+	</resultMap>
+		
+	
+	 <select id="findAllOrder" resultMap="OrderResultMap">
+		select a.orderid,a.watch_id,a.w_count,a.state,a.user_id,a.w_ordertime,
+		 b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl
+		 	from w_order a left outer join watch b on a.watch_id= b.watchid where user_id=#{user_id}
+	</select> 	
+		
+	 <select id="findAllOrders" resultMap="OrderResultMap">
+		select a.orderid,a.watch_id,a.w_count,a.state,a.user_id,a.w_ordertime,
+		 b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl
+		 	from w_order a left outer join watch b on a.watch_id= b.watchid 
+	</select> 
+	
+	 <select id="findOrder1" resultMap="OrderResultMap" parameterType="java.lang.String">
+		select a.orderid,a.watch_id,a.w_count,a.state,a.user_id,a.w_ordertime,
+		 b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl
+		 	from w_order a left outer join watch b on a.watch_id= b.watchid where state='已送达'
+	</select> 
+		
+	<select id="findOrder0" resultMap="OrderResultMap" parameterType="java.lang.String">
+		select a.orderid,a.watch_id,a.w_count,a.state,a.user_id,a.w_ordertime,
+		 b.watchid,b.type,b.watchname,b.price,b.amount,b.descr,b.pics,b.xl
+		 	from w_order a left outer join watch b on a.watch_id= b.watchid where state='未送达'
+	</select> 
+			
+	<insert id="insertOrder" parameterType="com.example.model.Order"> 
+	insert into w_order(watch_id,w_count,user_id,w_ordertime,state) 
+	values(#{watch_id},#{w_count},#{user_id},#{w_ordertime},#{state}) 
+	</insert>
+	
+	
+	<update id="updateOrder" parameterType="int">
+	update w_order set state='已送达' where orderid = #{orderid}
+	</update> 
+	
+</mapper>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xsi:schemaLocation="http://www.springframework.org/schema/mvc 
+http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+ http://www.springframework.org/schema/beans 
+ http://www.springframework.org/schema/beans/spring-beans.xsd 
+ http://www.springframework.org/schema/context 
+ http://www.springframework.org/schema/context/spring-context-4.3.xsd 
+ http://mybatis.org/schema/mybatis-spring
+  http://mybatis.org/schema/mybatis-spring.xsd " 
+  xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+   xmlns:mvc="http://www.springframework.org/schema/mvc" 
+   xmlns:context="http://www.springframework.org/schema/context" 
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+   xmlns="http://www.springframework.org/schema/beans"> 
+   <context:annotation-config/> <mvc:annotation-driven/>
+	<context:component-scan base-package="com.example">
+	</context:component-scan>
+	<mybatis:scan base-package="com.example"/>
+	<!--引入属性文件 -->
+ <context:property-placeholder location="classpath:datasource.properties"/>
+	
+	<mvc:resources location="/WEB-INF/statics/css/" mapping="/css/**"/>  <!-- 访问statics目录下的文件 -->
+	<mvc:resources location="/WEB-INF/statics/images/" mapping="/images/**"/>  <!-- 访问statics目录下的文件 -->
+	<mvc:resources location="/WEB-INF/statics/js/" mapping="/js/**"/>  <!-- 访问statics目录下的文件 -->
+	
+	<mvc:resources location="/WEB-INF/watches/images/" mapping="/watch/images/**"/> 
+	<mvc:resources location="/WEB-INF/jsp/admin/" mapping="/admin/**"/>
+	
+	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix">
+			<value>/WEB-INF/jsp/</value>
+		</property>
+		<property name="suffix">
+			<value>.jsp</value>
+		</property>
+		
+	</bean>
+	
+	<bean class="org.springframework.context.support.ReloadableResourceBundleMessageSource" id="messageSource">
+	 <property name="basename" value="/WEB-INF/message"/>
+	  <property name="cacheSeconds" value="0"/> 
+	  <property name="defaultEncoding" value="UTF-8"/>
+	   </bean>
+
+	<mvc:interceptors> 
+	<bean class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor"> 
+	<property name="paramName" value="sitelang"/> 
+	</bean>
+	<bean class="com.example.interceptor.AdminLoginInterceptor" id="adminLoginInterceptor"/>
+	 </mvc:interceptors> 
+	 <bean class="org.springframework.web.servlet.i18n.CookieLocaleResolver" id="localeResolver"/>
+	  
+	  
+	  <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter" id="messageAdapter"> 
+	  <property name="messageConverters"> 
+	  <list> 
+<!-- Support JSON -->
+ <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/> 
+ </list>
+  </property>
+   </bean> 
+   <bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerExceptionResolver" 
+   id="exceptionMessageAdapter"> 
+   <property name="messageConverters"> 
+   <list> 
+<!-- Support JSON -->
+ <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"/>
+  </list>
+   </property>
+    </bean>
+    <bean class="org.springframework.jdbc.datasource.DriverManagerDataSource" id="dataSource">
+     <property name="driverClassName" value="${jdbc.driver}"/> 
+    <property name="url" value="${jdbc.url}"/>
+     <property name="username" value="${jdbc.username}"/>
+      <property name="password" value="${jdbc.password}"/> 
+      </bean> 
+<!-- mybatis配置 -->
+ <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory"> 
+ <property name="dataSource" ref="dataSource"/>
+ <property name="configLocation" value="classpath:mybatis-config.xml"/> 
+ </bean>
+ 
+ <bean class="org.springframework.web.multipart.commons.CommonsMultipartResolver" id="multipartResolver">
+<!-- 指定所上传文件的总大小不能超过200KB。注意maxUploadSize属性的限制不是针对单个文件，而是所有文件的容量之和 -->
+<property name="maxUploadSize" value="300000"/>
+</bean>
+<!-- 该异常是SpringMVC在检查上传的文件信息时抛出来的，而且此时还没有进入到Controller方法中 -->
+<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver" id="exceptionResolver">
+<property name="exceptionMappings">
+<props>
+<!-- 遇到MaxUploadSizeExceededException异常时，自动跳转到WebContent目录下的error.jsp页面 -->
+<prop key="org.springframework.web.multipart.MaxUploadSizeExceededException">error</prop>
+</props>
+</property>
+</bean>
+
+
+</beans>

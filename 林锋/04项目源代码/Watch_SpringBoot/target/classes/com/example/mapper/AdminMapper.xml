@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.AdminMapper">
+	
+	<resultMap id="AdminResultMap" type="com.example.model.Admin">
+		<id column="adminid" property="adminid" />
+		<result column="adminname" property="adminname" />
+		<result column="adminpwd" property="adminpwd" />
+				
+	</resultMap>
+	
+	
+	<!-- <select id="chkAdmin" resultType="java.lang.Integer" parameterType="java.lang.String">
+		select count(adminid)  from admin where adminname=#{adminname}
+	</select> -->
+	
+	
+	<select id="loginAdmin" resultMap="AdminResultMap" parameterType="com.example.model.Admin">
+		select adminid, adminname, adminpwd from admin where adminname=#{arg0} and adminpwd=#{arg1}
+	</select>
+	
+	
+	
+	
+</mapper>
